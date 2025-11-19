@@ -10,5 +10,5 @@ function TaskItem({ task, toggleTask, deleteTask }) {
     </li>
   );
 }
-
+         
 export default TaskItem;
