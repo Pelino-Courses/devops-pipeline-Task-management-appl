@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import api from "./api/axios";
+import TaskList from "./components/TaskList";
+import "./styles.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
+
+  const fetchTasks = async () => {
+    const res = await api.get("/tasks");
+    setTasks(res.data);
+  };
+
+  const addTask = async () => {
+    if (!title) return;
+    const res = await api.post("/tasks", { title });
+    setTasks([...tasks, res.data]);
+    setTitle("");
+  };
+
+  const toggleTask = async (id, completed) => {
+    const res = await api.put(`/tasks/${id}`, { completed: !completed });
+    setTasks(tasks.map(t => (t.id === id ? res.data : t)));
+  };
+
+  const deleteTask = async (id) => {
+    await api.delete(`/tasks/${id}`);
+    setTasks(tasks.filter(t => t.id !== id));
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <h1>Task Management App</h1>
+      <div className="task-input">
+        <input
+          type="text"
+          value={title}
+          placeholder="Enter new task..."
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <button onClick={addTask}>Add Task</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      <TaskList
+        tasks={tasks}
+        toggleTask={toggleTask}
+        deleteTask={deleteTask}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
