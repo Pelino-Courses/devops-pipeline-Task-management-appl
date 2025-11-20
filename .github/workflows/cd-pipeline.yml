@@ -28,7 +28,7 @@ jobs:
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build and Push Backend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./backend
           push: true
@@ -37,7 +37,7 @@ jobs:
             ${{ secrets.ACR_LOGIN_SERVER }}/devops-backend:latest
 
       - name: Build and Push Frontend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./frontend
           push: true
