@@ -13,7 +13,7 @@ variable "environment" {
 variable "location" {
   description = "Azure region for resources"
   type        = string
-  default     = "West US 2"
+  default     = "North Europe"
 }
 
 variable "vm_size" {
