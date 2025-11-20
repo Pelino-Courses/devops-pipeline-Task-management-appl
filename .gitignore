@@ -1,15 +1,3 @@
-# Dependencies
-node_modules/
-
-# Testing
-coverage/
-.nyc_output/
-
-# Production
-build/
-dist/
-
-# Environment
 .env
 .env.local
 .env.development.local
