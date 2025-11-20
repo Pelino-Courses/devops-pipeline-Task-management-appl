@@ -1,0 +1,136 @@
+---
+- name: Deploy Application to Azure VM
+  hosts: azure_vms
+  become: yes
+  gather_facts: yes
+
+  vars:
+    acr_login_server: "{{ lookup('env', 'ACR_LOGIN_SERVER') }}"
+    acr_username: "{{ lookup('env', 'ACR_USERNAME') }}"
+    acr_password: "{{ lookup('env', 'ACR_PASSWORD') }}"
+    image_tag: "{{ lookup('env', 'IMAGE_TAG') | default('latest', true) }}"
+    db_user: "{{ lookup('env', 'DB_USER') }}"
+    db_password: "{{ lookup('env', 'DB_PASSWORD') }}"
+    db_name: "{{ lookup('env', 'DB_NAME') }}"
+    app_dir: "/opt/task-management-app"
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: azureuser
+        groups: docker
+        append: yes
+
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: azureuser
+        group: azureuser
+        mode: '0755'
+
+    - name: Login to Azure Container Registry
+      command: >
+        docker login {{ acr_login_server }}
+        -u {{ acr_username }}
+        -p {{ acr_password }}
+      no_log: true
+
+    - name: Create docker-compose.yml
+      copy:
+        dest: "{{ app_dir }}/docker-compose.yml"
+        content: |
+          version: '3.8'
+          
+          services:
+            postgres:
+              image: postgres:15-alpine
+              environment:
+                POSTGRES_USER: {{ db_user }}
+                POSTGRES_PASSWORD: {{ db_password }}
+                POSTGRES_DB: {{ db_name }}
+              volumes:
+                - postgres_data:/var/lib/postgresql/data
+              ports:
+                - "5432:5432"
+              healthcheck:
+                test: ["CMD-SHELL", "pg_isready -U {{ db_user }}"]
+                interval: 10s
+                timeout: 5s
+                retries: 5
+            
+            backend:
+              image: {{ acr_login_server }}/devops-backend:{{ image_tag }}
+              environment:
+                DATABASE_URL: postgresql://{{ db_user }}:{{ db_password }}@postgres:5432/{{ db_name }}
+                NODE_ENV: production
+                PORT: 3000
+              ports:
+                - "3000:3000"
+              depends_on:
+                postgres:
+                  condition: service_healthy
+            
+            frontend:
+              image: {{ acr_login_server }}/devops-frontend:{{ image_tag }}
+              environment:
+                VITE_API_URL: http://4.221.172.88:3000
+              ports:
+                - "5173:5173"
+              depends_on:
+                - backend
+          
+          volumes:
+            postgres_data:
+        owner: azureuser
+        group: azureuser
+        mode: '0644'
+
+    - name: Pull latest images
+      command: docker-compose -f {{ app_dir }}/docker-compose.yml pull
+      become_user: azureuser
+
+    - name: Stop existing containers
+      command: docker-compose -f {{ app_dir }}/docker-compose.yml down
+      become_user: azureuser
+      ignore_errors: yes
+
+    - name: Start application
+      command: docker-compose -f {{ app_dir }}/docker-compose.yml up -d
+      become_user: azureuser
+
+    - name: Wait for backend to be healthy
+      wait_for:
+        port: 3000
+        delay: 10
+        timeout: 60
+
+    - name: Wait for frontend to be healthy
+      wait_for:
+        port: 5173
+        delay: 5
+        timeout: 30
+
+    - name: Show running containers
+      command: docker ps
+      become_user: azureuser
+      register: docker_ps
+
+    - name: Display container status
+      debug:
+        var: docker_ps.stdout_lines
