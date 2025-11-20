@@ -1,7 +1,7 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/db.js";
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const Task = sequelize.define("Task", {
+const Task = sequelize.define('Task', {
   title: {
     type: DataTypes.STRING,
     allowNull: false,

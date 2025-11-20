@@ -1,4 +1,4 @@
-import Task from "../models/Task.js";
+import Task from '../models/Task.js';
 
 export const getTasks = async (req, res) => {
   const tasks = await Task.findAll();
@@ -26,5 +26,5 @@ export const deleteTask = async (req, res) => {
   const { id } = req.params;
 
   await Task.destroy({ where: { id } });
-  res.json({ message: "Task deleted" });
+  res.json({ message: 'Task deleted' });
 };

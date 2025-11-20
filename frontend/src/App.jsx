@@ -7,10 +7,13 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
 
-  const fetchTasks = async () => {
-    const res = await api.get("/tasks");
-    setTasks(res.data);
-  };
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const res = await api.get("/tasks");
+      setTasks(res.data);
+    };
+    fetchTasks();
+  }, []);
 
   const addTask = async () => {
     if (!title) return;
@@ -28,10 +31,6 @@ function App() {
     await api.delete(`/tasks/${id}`);
     setTasks(tasks.filter(t => t.id !== id));
   };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
 
   return (
     <div className="container">

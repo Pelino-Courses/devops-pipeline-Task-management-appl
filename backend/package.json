@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-     "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,7 @@
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
+    "eslint": "^8.56.0",
     "nodemon": "^3.1.11"
   }
 }

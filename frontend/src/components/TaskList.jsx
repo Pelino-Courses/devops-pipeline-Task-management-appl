@@ -2,7 +2,7 @@ import React from "react";
 import TaskItem from "./TaskItem";
 
 function TaskList({ tasks, toggleTask, deleteTask }) {
-  if (tasks.length === 0) return <p>No tasks available</p>;
+  if (tasks.length === 0) return <p className="empty-state">No tasks available</p>;
 
   return (
     <ul>
