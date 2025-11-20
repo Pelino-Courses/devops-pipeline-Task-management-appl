@@ -11,6 +11,12 @@ resource "azurerm_resource_group" "main" {
 }
 
 # Virtual Network
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+  upper   = false
+}
+
 resource "azurerm_virtual_network" "main" {
   name                = "${var.project_name}-${var.environment}-vnet"
   address_space       = ["10.0.0.0/16"]
@@ -165,7 +171,7 @@ resource "azurerm_linux_virtual_machine" "main" {
 
 # Container Registry
 resource "azurerm_container_registry" "main" {
-  name                = "${var.project_name}${var.environment}acr"
+  name                = "${var.project_name}${var.environment}acr${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   sku                 = "Basic"
