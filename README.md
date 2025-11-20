@@ -1,32 +1,61 @@
-## Branching Strategy
+# DevOps Pipeline Task Management Application
 
-- `main`: Production-ready code, protected
-- `develop`: Integration branch for features
-- `feature/*`: New features (branch from develop)
-- `bugfix/*`: Bug fixes (branch from develop)
-- `hotfix/*`: Emergency fixes (branch from main)
-- `release/*`: Release preparation (branch from develop)
+A comprehensive Task Management Application built with a modern DevOps pipeline, demonstrating Infrastructure as Code, Configuration Management, CI/CD, and DevSecOps practices.
 
-## Workflow
-1. Create feature branch from develop
-2. Develop and commit changes
-3. Push branch and create Pull Request to develop
-4. Pass all CI checks
-5. Obtain 2 peer reviews
-6. Merge to develop
-7. Periodically merge develop to main through release branch
+## 🚀 Features
+- **Task Management**: Create, read, update, and delete tasks.
+- **Modern UI**: Built with React and a custom design system.
+- **Robust Backend**: Node.js/Express API with PostgreSQL database.
+- **Infrastructure as Code**: Azure resources provisioned via Terraform.
+- **Configuration Management**: Server configuration automated with Ansible.
+- **CI/CD**: Full automation with GitHub Actions.
+- **Security**: Integrated SAST, DAST, and dependency scanning.
 
-## Dockerized Development
+## 🛠️ Tech Stack
+- **Frontend**: React, Vite, CSS Modules
+- **Backend**: Node.js, Express, Sequelize
+- **Database**: PostgreSQL
+- **Infrastructure**: Terraform, Azure
+- **Config Management**: Ansible, Docker
+- **CI/CD**: GitHub Actions
 
-1. Copy `env.sample` to `.env` (or edit `env.sample`) and keep the provided `DB_URL`. Adjust `PORT` or `VITE_API_URL` if you need different values.
-2. Build and run both services:
+## 📚 Documentation
+- [Deployment Guide](docs/DEPLOYMENT.md): How to provision and deploy.
+- [System Architecture](docs/ARCHITECTURE.md): Detailed system design and diagrams.
+- [Security Overview](docs/SECURITY.md): Security measures and compliance.
+
+## 🏁 Getting Started (Local Development)
+
+### Prerequisites
+- Node.js (v18+)
+- Docker & Docker Compose
+
+### Installation
+1. Clone the repository:
    ```bash
-   docker compose up --build
+   git clone <repo-url>
+   cd devops-pipeline-Task-management-application
    ```
-   - Backend: `http://localhost:2000`
-   - Frontend (Vite build served via Nginx): `http://localhost:5173`
-3. Update the frontend API origin by passing `VITE_API_URL` at build time if you deploy elsewhere, e.g.
+
+2. Start the application using Docker Compose:
    ```bash
-   docker compose build frontend \
-     --build-arg VITE_API_URL=https://api.example.com/api
+   docker-compose up --build
    ```
+
+3. Access the application:
+   - Frontend: `http://localhost:5173`
+   - Backend: `http://localhost:3000`
+
+## 🧪 Running Tests
+```bash
+# Backend
+cd backend
+npm test
+
+# Frontend
+cd frontend
+npm test
+```
+
+## 🤝 Contributing
+Please read the [Security Policy](docs/SECURITY.md) before contributing.

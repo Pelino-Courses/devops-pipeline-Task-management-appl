@@ -1,0 +1,87 @@
+---
+- name: Complete Azure Infrastructure Provisioning
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  
+  vars:
+    resource_group: devopspipeline-dev-rg
+    location: southafricanorth
+    vnet_name: devopspipeline-dev-vnet
+    subnet_name: vm-subnet
+    nsg_name: devopspipeline-dev-nsg
+    public_ip_name: devopspipeline-dev-pip
+    nic_name: devopspipeline-dev-nic
+    vm_name: devopspipeline-dev-vm
+    ssh_key_name: devopspipeline-dev-sshkey
+    admin_username: azureuser
+    vm_size: Standard_B2s
+    
+  tasks:
+    - name: Create subnet
+      azure.azcollection.azure_rm_subnet:
+        resource_group: "{{ resource_group }}"
+        virtual_network_name: "{{ vnet_name }}"
+        name: "{{ subnet_name }}"
+        address_prefix_cidr: 10.0.1.0/24
+      register: subnet_result
+
+    - name: Create network interface
+      azure.azcollection.azure_rm_networkinterface:
+        resource_group: "{{ resource_group }}"
+        name: "{{ nic_name }}"
+        virtual_network: "{{ vnet_name }}"
+        subnet_name: "{{ subnet_name }}"
+        security_group: "{{ nsg_name }}"
+        ip_configurations:
+          - name: ipconfig1
+            public_ip_address_name: "{{ public_ip_name }}"
+            primary: true
+      register: nic_result
+
+    - name: Get SSH public key from Azure
+      azure.azcollection.azure_rm_sshpublickey_info:
+        resource_group: "{{ resource_group }}"
+        name: "{{ ssh_key_name }}"
+      register: ssh_key_info
+
+    - name: Create Virtual Machine
+      azure.azcollection.azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name }}"
+        location: "{{ location }}"
+        vm_size: "{{ vm_size }}"
+        admin_username: "{{ admin_username }}"
+        ssh_password_enabled: false
+        ssh_public_keys:
+          - path: "/home/{{ admin_username }}/.ssh/authorized_keys"
+            key_data: "{{ ssh_key_info.ssh_keys[0].public_key }}"
+        network_interfaces:
+          - "{{ nic_name }}"
+        image:
+          offer: 0001-com-ubuntu-server-jammy
+          publisher: Canonical
+          sku: 22_04-lts-gen2
+          version: latest
+        os_disk_caching: ReadWrite
+        managed_disk_type: Standard_LRS
+        tags:
+          Environment: dev
+          ManagedBy: Ansible
+          Project: devopspipeline
+      register: vm_result
+
+    - name: Get public IP address
+      azure.azcollection.azure_rm_publicipaddress_info:
+        resource_group: "{{ resource_group }}"
+        name: "{{ public_ip_name }}"
+      register: public_ip_info
+
+    - name: Display VM information
+      debug:
+        msg:
+          - "=== Infrastructure Complete! ==="
+          - "VM Name: {{ vm_name }}"
+          - "Public IP: {{ public_ip_info.publicipaddresses[0].ip_address }}"
+          - "SSH Command: ssh {{ admin_username }}@{{ public_ip_info.publicipaddresses[0].ip_address }}"
+          - "Next: Configure GitHub Secrets and push code to deploy!"
