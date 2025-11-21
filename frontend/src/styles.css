@@ -45,13 +45,13 @@ h1 {
   font-weight: 600;
   font-size: 0.95rem;
   color: white;
-  background: var(--color-primary);
+  background: #10b981;
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
 }
 
 .task-input button:hover {
-  background: var(--color-primary-dark);
+  background: #059669;
   transform: translateY(-1px);
 }
 
