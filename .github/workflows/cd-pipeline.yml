@@ -75,6 +75,14 @@ jobs:
         run: |
           # Run deployment playbook with static inventory
           # SSH agent is automatically used
+          # Pass environment variables as Ansible extra-vars
           ansible-playbook -i ansible/inventory/static-hosts.ini \
             ansible/playbooks/deploy-app.yml \
+            -e "acr_login_server=$ACR_LOGIN_SERVER" \
+            -e "acr_username=$ACR_USERNAME" \
+            -e "acr_password=$ACR_PASSWORD" \
+            -e "db_user=$DB_USER" \
+            -e "db_password=$DB_PASSWORD" \
+            -e "db_name=$DB_NAME" \
+            -e "image_tag=$IMAGE_TAG" \
             -v
