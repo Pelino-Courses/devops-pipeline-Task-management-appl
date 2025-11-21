@@ -41,6 +41,8 @@ jobs:
         with:
           context: ./frontend
           push: true
+          build-args: |
+            VITE_API_URL=http://4.221.172.88:7000/api
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/devops-frontend:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/devops-frontend:latest
