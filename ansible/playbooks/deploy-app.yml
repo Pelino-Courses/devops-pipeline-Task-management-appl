@@ -52,6 +52,7 @@
         docker login {{ acr_login_server }}
         -u {{ acr_username }}
         -p {{ acr_password }}
+      become_user: azureuser
       no_log: true
 
     - name: Create docker-compose.yml
