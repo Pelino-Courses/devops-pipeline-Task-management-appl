@@ -42,7 +42,7 @@ function App() {
           placeholder="Enter new task..."
           onChange={(e) => setTitle(e.target.value)}
         />
-        <button onClick={addTask}>Add Tasking</button>
+        <button onClick={addTask}>Add</button>
       </div>
 
       <TaskList
