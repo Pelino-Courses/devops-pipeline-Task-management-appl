@@ -57,6 +57,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Run Ansible Deployment
         env:
           ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
@@ -68,12 +73,8 @@ jobs:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
           ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
-          # Create SSH key file with proper formatting
-          printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key.pem
-          chmod 600 ssh_key.pem
-          
           # Run deployment playbook with static inventory
+          # SSH agent is automatically used
           ansible-playbook -i ansible/inventory/static-hosts.ini \
             ansible/playbooks/deploy-app.yml \
-            --private-key ssh_key.pem \
             -v
