@@ -65,9 +65,9 @@
             postgres:
               image: postgres:15-alpine
               environment:
-                POSTGRES_USER: {{ db_user }}
-                POSTGRES_PASSWORD: {{ db_password }}
-                POSTGRES_DB: {{ db_name }}
+                POSTGRES_USER: "{{ db_user }}"
+                POSTGRES_PASSWORD: "{{ db_password }}"
+                POSTGRES_DB: "{{ db_name }}"
               volumes:
                 - postgres_data:/var/lib/postgresql/data
               ports:
@@ -80,9 +80,9 @@
                 start_period: 30s
             
             backend:
-              image: {{ acr_login_server }}/devops-backend:{{ image_tag }}
+              image: "{{ acr_login_server }}/devops-backend:{{ image_tag }}"
               environment:
-                DATABASE_URL: postgresql://{{ db_user }}:{{ db_password }}@postgres:5432/{{ db_name }}
+                DATABASE_URL: "postgresql://{{ db_user }}:{{ db_password }}@postgres:5432/{{ db_name }}"
                 NODE_ENV: production
                 PORT: 7000
               ports:
@@ -91,7 +91,7 @@
                 - postgres
             
             frontend:
-              image: {{ acr_login_server }}/devops-frontend:{{ image_tag }}
+              image: "{{ acr_login_server }}/devops-frontend:{{ image_tag }}"
               environment:
                 VITE_API_URL: http://4.221.172.88:7000
               ports:
